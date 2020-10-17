@@ -12,10 +12,7 @@ import io.ktor.request.receiveMultipart
 import io.ktor.response.respond
 import io.ktor.routing.*
 import io.ktor.util.KtorExperimentalAPI
-import polenova.dto.AuthenticationRequestDto
-import polenova.dto.PasswordChangeRequestDto
-import polenova.dto.PostRequestDto
-import polenova.dto.UserResponseDto
+import polenova.dto.*
 import polenova.model.UserModel
 import polenova.service.*
 
@@ -23,7 +20,8 @@ class RoutingV1(
     private val staticPath: String,
     private val postService: PostService,
     private val fileService: FileService,
-    private val userService: UserService
+    private val userService: UserService,
+    private val fcmService: FCMService
 ) {
     @KtorExperimentalAPI
     fun setup(configuration: Routing) {
@@ -57,6 +55,15 @@ class RoutingV1(
                             val input = call.receive<PasswordChangeRequestDto>()
                             val response = userService.changePassword(me!!.id, input)
                             call.respond(response)
+                        }
+                    }
+                    route("/firebase-token") {
+                        post {
+                            val me = call.authentication.principal<UserModel>()
+                            val token = call.receive<TokenDto>()
+                            userService.saveFirebaseToken(me!!.id, token.token)
+                            call.respond(HttpStatusCode.OK)
+                            fcmService.send(me!!.id, token.token, "Welcome ${me!!.username}")
                         }
                     }
                     route("/posts") {
