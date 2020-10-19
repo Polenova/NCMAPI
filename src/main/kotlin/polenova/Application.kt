@@ -80,7 +80,7 @@ fun Application.module(testing: Boolean = false) {
     }
     install(KodeinFeature) {
         constant(tag = "upload-dir") with (environment.config.propertyOrNull("polenova.upload.dir")?.getString()
-            ?: throw ConfigurationException("Upload dir is not specified"))
+                ?: throw ConfigurationException("Upload dir is not specified"))
         bind<PasswordEncoder>() with eagerSingleton { BCryptPasswordEncoder() }
         bind<JWTTokenService>() with eagerSingleton { JWTTokenService() }
         bind<PostRepository>() with eagerSingleton { PostRepositoryInMemoryWithMutexImpl() }
@@ -89,36 +89,37 @@ fun Application.module(testing: Boolean = false) {
         bind<UserRepository>() with eagerSingleton { UserRepositoryInMemoryWithAtomicImpl() }
         bind<UserService>() with eagerSingleton { UserService(instance(), instance(), instance()) }
         constant(tag = "fcm-password") with (environment.config.propertyOrNull("polenova.fcm.password")?.getString()
-            ?: throw ConfigurationException("FCM Password is not specified"))
+                ?: throw ConfigurationException("FCM Password is not specified"))
         constant(tag = "fcm-salt") with (environment.config.propertyOrNull("polenova.fcm.salt")?.getString()
-            ?: throw ConfigurationException("FCM Salt is not specified"))
+                ?: throw ConfigurationException("FCM Salt is not specified"))
         constant(tag = "fcm-db-url") with (environment.config.propertyOrNull("polenova.fcm.db-url")?.getString()
-            ?: throw ConfigurationException("FCM DB Url is not specified"))
+                ?: throw ConfigurationException("FCM DB Url is not specified"))
         constant(tag = "fcm-path") with (environment.config.propertyOrNull("polenova.fcm.path")?.getString()
-            ?: throw ConfigurationException("FCM JSON Path is not specified"))
+                ?: throw ConfigurationException("FCM JSON Path is not specified"))
 
         bind<FCMService>() with eagerSingleton {
             FCMService(
-                instance(tag = "fcm-db-url"),
-                instance(tag = "fcm-password"),
-                instance(tag = "fcm-salt"),
-                instance(tag = "fcm-path")
+                    instance(tag = "fcm-db-url"),
+                    instance(tag = "fcm-password"),
+                    instance(tag = "fcm-salt"),
+                    instance(tag = "fcm-path")
             )
         }
 
 
         bind<RoutingV1>() with eagerSingleton {
             RoutingV1(
-                instance(tag = "upload-dir"),
-                instance(),
-                instance(),
-                instance()
+                    instance(tag = "upload-dir"),
+                    instance(),
+                    instance(),
+                    instance(),
+                    instance()
             )
         }
     }
 
     install(Authentication) {
-        jwt ("jwt") {
+        jwt("jwt") {
             val jwtService by kodein().instance<JWTTokenService>()
             verifier(jwtService.verifier)
             val userService by kodein().instance<UserService>()
