@@ -116,7 +116,7 @@ class RoutingV1(
                                 "id",
                                 "Long"
                             )
-                            val response = postService.likeById(id, me!!)
+                            val response = postService.likeById(id, me!!, fcmService)
                             call.respond(response)
                         }
                         delete("/{id}/dislike") {

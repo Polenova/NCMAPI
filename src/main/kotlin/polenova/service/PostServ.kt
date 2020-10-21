@@ -40,9 +40,12 @@ class PostService(private val repo: PostRepository) {
     }
 
     @KtorExperimentalAPI
-    suspend fun likeById(id: Long, user: UserModel): PostResponseDto {
+    suspend fun likeById(id: Long, user: UserModel, fcmService: FCMService): PostResponseDto {
         val model = repo.likeById(id, user.id) ?: throw NotFoundException()
         val userOfPost = model.user!!
+        if (!userOfPost.firebaseToken.isNullOrEmpty()) {
+            fcmService.send(userOfPost.id, userOfPost.firebaseToken, "Your post liked by ${user.username}")
+        }
         return PostResponseDto.fromModel(model, user.id)
     }
 
